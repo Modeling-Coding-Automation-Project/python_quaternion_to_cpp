@@ -26,10 +26,14 @@ def q_from_rotation_vector(theta, direction_vector):
     else:
         direction_vector_norm_inv = 1.0 / math.sqrt(direction_vector_sq)
 
-    w = math.cos(0.5 * theta)
-    x = direction_vector[0] * direction_vector_norm_inv * math.sin(0.5 * theta)
-    y = direction_vector[1] * direction_vector_norm_inv * math.sin(0.5 * theta)
-    z = direction_vector[2] * direction_vector_norm_inv * math.sin(0.5 * theta)
+    half_theta = 0.5 * theta
+    sin_half_theta = math.sin(half_theta)
+    norm_inv_sin_theta = direction_vector_norm_inv * sin_half_theta
+
+    w = math.cos(half_theta)
+    x = direction_vector[0] * norm_inv_sin_theta
+    y = direction_vector[1] * norm_inv_sin_theta
+    z = direction_vector[2] * norm_inv_sin_theta
 
     return np.quaternion(w, x, y, z)
 

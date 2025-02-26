@@ -15,6 +15,50 @@ constexpr std::size_t E_ROLL = 0;
 constexpr std::size_t E_PITCH = 1;
 constexpr std::size_t E_YAW = 2;
 
+/* Direction Vector Type */
+template <typename T>
+using DirectionVector_Type =
+    PythonNumpy::DenseMatrix_Type<T, CARTESIAN_SIZE, 1>;
+
+/* make Direction Vector */
+template <typename T>
+inline auto make_DirectionVector(const T &x, const T &y, const T &z)
+    -> DirectionVector_Type<T> {
+
+  return PythonNumpy::make_DenseMatrix<CARTESIAN_SIZE, 1>(x, y, z);
+}
+
+/* Quaternion from rotation angle and direction vector */
+template <typename T>
+inline auto
+q_from_rotation_vector(const T &theta,
+                       const DirectionVector_Type<T> &direction_vector,
+                       const T &division_min) -> Quaternion_Type<T> {
+
+  T direction_vector_sq = direction_vector.template get<P_X, 0>() *
+                              direction_vector.template get<P_X, 0>() +
+                          direction_vector.template get<P_Y, 0>() *
+                              direction_vector.template get<P_Y, 0>() +
+                          direction_vector.template get<P_Z, 0>() *
+                              direction_vector.template get<P_Z, 0>();
+
+  T direction_vector_norm_inv = static_cast<T>(0);
+
+  direction_vector_norm_inv =
+      Base::Math::rsqrt(direction_vector_sq, division_min);
+
+  auto half_theta = theta * static_cast<T>(0.5);
+  auto sin_half_theta = Base::Math::sin(half_theta);
+
+  T norm_inv_sin_theta = direction_vector_norm_inv * sin_half_theta;
+
+  return Quaternion_Type<T>(
+      Base::Math::cos(half_theta),
+      direction_vector.template get<P_X, 0>() * norm_inv_sin_theta,
+      direction_vector.template get<P_Y, 0>() * norm_inv_sin_theta,
+      direction_vector.template get<P_Z, 0>() * norm_inv_sin_theta);
+}
+
 /* Omega Type */
 template <typename T>
 using Omega_Type = PythonNumpy::DenseMatrix_Type<T, CARTESIAN_SIZE, 1>;
