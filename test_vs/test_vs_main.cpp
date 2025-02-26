@@ -70,6 +70,24 @@ void check_python_quaternion_base(void) {
     tester.expect_near(q1_identity.z, static_cast<T>(0), NEAR_LIMIT_STRICT,
         "check quaternion identity ");
 
+    /* 回転軸ベクトルからクオータニオン */
+    T theta = Base::Math::PI / static_cast<T>(4);
+    auto direction_vector = make_DirectionVector(
+        static_cast<T>(1),
+        static_cast<T>(2),
+        static_cast<T>(3)
+    );
+
+    auto q_r = q_from_rotation_vector(theta, direction_vector, static_cast<T>(1.0e-10));
+
+    tester.expect_near(q_r.w, static_cast<T>(0.923879532511287), NEAR_LIMIT_STRICT,
+        "check q_from_rotation_vector ");
+    tester.expect_near(q_r.x, static_cast<T>(0.102276449393203), NEAR_LIMIT_STRICT,
+        "check q_from_rotation_vector ");
+    tester.expect_near(q_r.y, static_cast<T>(0.204552898786406), NEAR_LIMIT_STRICT,
+        "check q_from_rotation_vector ");
+    tester.expect_near(q_r.z, static_cast<T>(0.306829348179609), NEAR_LIMIT_STRICT,
+        "check q_from_rotation_vector ");
 
     /* クオータニオン和 */
     auto q1_add_q2 = q1 + q2;

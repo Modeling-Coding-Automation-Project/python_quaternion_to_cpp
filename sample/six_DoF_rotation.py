@@ -7,6 +7,9 @@ import quaternion
 # Below is the module in "python_quaternion" directory.
 import python_quaternion.rotation as PythonRotation
 
+q_r = PythonRotation.q_from_rotation_vector(
+    np.pi / 4, np.array([[1.0], [2.0], [3.0]]))
+print("q_r:", q_r)
 
 q_1 = PythonRotation.identity()
 omega_1 = np.array([[1.0], [-1.0], [1.0]])
