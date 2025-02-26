@@ -7,8 +7,31 @@ import quaternion
 import numpy as np
 
 
+DEFAULT_DIVISION_MIN = 1.0e-10
+
+
 def identity():
     return np.quaternion(1.0, 0.0, 0.0, 0.0)
+
+
+def q_from_rotation_vector(theta, direction_vector):
+
+    direction_vector_sq = direction_vector[0] * direction_vector[0] + \
+        direction_vector[1] * direction_vector[1] + \
+        direction_vector[2] * direction_vector[2]
+
+    direction_vector_norm_inv = 0
+    if direction_vector_sq < DEFAULT_DIVISION_MIN:
+        direction_vector_norm_inv = 1.0 / math.sqrt(DEFAULT_DIVISION_MIN)
+    else:
+        direction_vector_norm_inv = 1.0 / math.sqrt(direction_vector_sq)
+
+    w = math.cos(0.5 * theta)
+    x = direction_vector[0] * direction_vector_norm_inv * math.sin(0.5 * theta)
+    y = direction_vector[1] * direction_vector_norm_inv * math.sin(0.5 * theta)
+    z = direction_vector[2] * direction_vector_norm_inv * math.sin(0.5 * theta)
+
+    return np.quaternion(w, x, y, z)
 
 
 def integrate_gyro_approximately(omega, q, time_step):
