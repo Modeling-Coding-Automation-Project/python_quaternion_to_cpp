@@ -38,6 +38,37 @@ def q_from_rotation_vector(theta, direction_vector):
     return np.quaternion(w, x, y, z)
 
 
+def rotation_matrix_euler_absolute(roll, pitch, yaw):
+    '''
+    # Get rotation matrix from Euler angles
+
+    Note:
+        The rotation order is ZYX.
+        The rotation is done with the axis fixed to the ground.
+    '''
+
+    R = np.zeros((3, 3))
+
+    roll_sin = math.sin(roll)
+    roll_cos = math.cos(roll)
+    pitch_sin = math.sin(pitch)
+    pitch_cos = math.cos(pitch)
+    yaw_sin = math.sin(yaw)
+    yaw_cos = math.cos(yaw)
+
+    R[0, 0] = yaw_cos * pitch_cos
+    R[0, 1] = -yaw_sin * pitch_cos
+    R[0, 2] = pitch_sin
+    R[1, 0] = yaw_cos * pitch_sin * roll_sin + yaw_sin * roll_cos
+    R[1, 1] = -yaw_sin * pitch_sin * roll_sin + yaw_cos * roll_cos
+    R[1, 2] = -pitch_cos * roll_sin
+    R[2, 0] = -yaw_cos * pitch_sin * roll_cos + yaw_sin * roll_sin
+    R[2, 1] = yaw_sin * pitch_sin * roll_cos + yaw_cos * roll_sin
+    R[2, 2] = pitch_cos * roll_cos
+
+    return R
+
+
 def integrate_gyro_approximately(omega, q, time_step):
     '''
     # Integrates 3-axis angular velocity to obtain a quaternion (approximate)

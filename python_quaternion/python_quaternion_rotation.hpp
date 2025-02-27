@@ -48,12 +48,14 @@ q_from_rotation_vector(const T &theta,
       Base::Math::rsqrt(direction_vector_sq, division_min);
 
   auto half_theta = theta * static_cast<T>(0.5);
-  auto sin_half_theta = Base::Math::sin(half_theta);
+  T sin_half_theta = static_cast<T>(0);
+  T cos_half_theta = static_cast<T>(0);
+  Base::Math::sincos(half_theta, sin_half_theta, cos_half_theta);
 
   T norm_inv_sin_theta = direction_vector_norm_inv * sin_half_theta;
 
   return Quaternion_Type<T>(
-      Base::Math::cos(half_theta),
+      cos_half_theta,
       direction_vector.template get<P_X, 0>() * norm_inv_sin_theta,
       direction_vector.template get<P_Y, 0>() * norm_inv_sin_theta,
       direction_vector.template get<P_Z, 0>() * norm_inv_sin_theta);

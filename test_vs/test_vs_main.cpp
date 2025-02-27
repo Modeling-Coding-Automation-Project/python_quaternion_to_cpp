@@ -71,7 +71,7 @@ void check_python_quaternion_base(void) {
         "check quaternion identity ");
 
     /* 回転軸ベクトルからクオータニオン */
-    T theta = Base::Math::PI / static_cast<T>(4);
+    T theta = static_cast<T>(Base::Math::PI) / static_cast<T>(4);
     auto direction_vector = make_DirectionVector(
         static_cast<T>(1),
         static_cast<T>(2),
