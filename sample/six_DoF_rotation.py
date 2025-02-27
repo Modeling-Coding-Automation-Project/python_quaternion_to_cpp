@@ -8,7 +8,7 @@ import quaternion
 import python_quaternion.rotation as PythonRotation
 
 R_euler = PythonRotation.rotation_matrix_euler_absolute(
-    np.pi / 2, np.pi / 2, 0.0)
+    0.0, np.pi / 2, 0.0)
 print("R_euler:\n", R_euler)
 
 v = np.array([[1.0], [0.0], [0.0]])
