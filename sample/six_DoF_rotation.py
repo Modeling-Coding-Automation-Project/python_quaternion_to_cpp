@@ -7,6 +7,14 @@ import quaternion
 # Below is the module in "python_quaternion" directory.
 import python_quaternion.rotation as PythonRotation
 
+R_euler = PythonRotation.rotation_matrix_euler_absolute(
+    np.pi / 2, np.pi / 2, 0.0)
+print("R_euler:\n", R_euler)
+
+v = np.array([[1.0], [0.0], [0.0]])
+v_rotated = R_euler @ v
+print("v_rotated:\n", v_rotated)
+
 q_r = PythonRotation.q_from_rotation_vector(
     np.pi / 4, np.array([[1.0], [2.0], [3.0]]))
 print("q_r:", q_r)
