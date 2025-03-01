@@ -11,11 +11,7 @@ constexpr std::size_t P_X = 0;
 constexpr std::size_t P_Y = 1;
 constexpr std::size_t P_Z = 2;
 
-constexpr std::size_t E_ROLL = 0;
-constexpr std::size_t E_PITCH = 1;
-constexpr std::size_t E_YAW = 2;
-
-/* CARTESIAN Vector */
+/* Cartesian Vector */
 template <typename T>
 class CartesianVector
     : public PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1> {
@@ -273,16 +269,16 @@ inline auto as_euler_angles(const Quaternion_Type<T> &q) -> EulerAngle_Type<T> {
   auto qy_qy = q.y * q.y;
   auto qz_qz = q.z * q.z;
 
-  euler_angles.template set<E_ROLL, 0>(
+  euler_angles.x =
       Base::Math::atan(static_cast<T>(2) * (q.y * q.z + q.w * q.x) /
-                       (qw_qw - qx_qx - qy_qy + qz_qz)));
+                       (qw_qw - qx_qx - qy_qy + qz_qz));
 
-  euler_angles.template set<E_PITCH, 0>(
-      -Base::Math::asin(static_cast<T>(2) * (q.x * q.z - q.w * q.y)));
+  euler_angles.y =
+      -Base::Math::asin(static_cast<T>(2) * (q.x * q.z - q.w * q.y));
 
-  euler_angles.template set<E_YAW, 0>(
+  euler_angles.z =
       Base::Math::atan(static_cast<T>(2) * (q.x * q.y + q.w * q.z) /
-                       (qw_qw + qx_qx - qy_qy - qz_qz)));
+                       (qw_qw + qx_qx - qy_qy - qz_qz));
 
   return euler_angles;
 }
