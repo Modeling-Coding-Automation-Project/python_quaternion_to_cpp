@@ -15,18 +15,18 @@ constexpr std::size_t E_ROLL = 0;
 constexpr std::size_t E_PITCH = 1;
 constexpr std::size_t E_YAW = 2;
 
-/* Direction Vector */
+/* CARTESIAN Vector */
 template <typename T>
-class DirectionVector
+class CartesianVector
     : public PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1> {
 public:
   /* Constructor */
-  DirectionVector()
+  CartesianVector()
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(),
         x(this->access(P_X, 0)), y(this->access(P_Y, 0)),
         z(this->access(P_Z, 0)) {}
 
-  DirectionVector(const T &x, const T &y, const T &z)
+  CartesianVector(const T &x, const T &y, const T &z)
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(),
         x(this->access(P_X, 0)), y(this->access(P_Y, 0)),
         z(this->access(P_Z, 0)) {
@@ -37,11 +37,11 @@ public:
   }
 
   /* Copy Constructor */
-  DirectionVector(const DirectionVector<T> &input)
+  CartesianVector(const CartesianVector<T> &input)
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(input),
         x(input.x), y(input.y), z(input.z) {}
 
-  DirectionVector<T> &operator=(const DirectionVector<T> &input) {
+  CartesianVector<T> &operator=(const CartesianVector<T> &input) {
     if (this != &input) {
       this->matrix = input.matrix;
       this->x = input.x;
@@ -52,13 +52,13 @@ public:
   }
 
   /* Move Constructor */
-  DirectionVector(DirectionVector<T> &&input) noexcept
+  CartesianVector(CartesianVector<T> &&input) noexcept
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(
             std::move(input)),
         x(input.access(P_X, 0)), y(input.access(P_Y, 0)),
         z(input.access(P_Z, 0)) {}
 
-  DirectionVector<T> &operator=(DirectionVector<T> &&input) noexcept {
+  CartesianVector<T> &operator=(CartesianVector<T> &&input) noexcept {
     if (this != &input) {
       this->matrix = std::move(input.matrix);
       this->x = input.access(P_X, 0);
@@ -76,14 +76,14 @@ public:
 };
 
 /* Direction Vector Type */
-template <typename T> using DirectionVector_Type = DirectionVector<T>;
+template <typename T> using DirectionVector_Type = CartesianVector<T>;
 
 /* make Direction Vector */
 template <typename T>
 inline auto make_DirectionVector(const T &x, const T &y, const T &z)
     -> DirectionVector_Type<T> {
 
-  return DirectionVector<T>(x, y, z);
+  return CartesianVector<T>(x, y, z);
 }
 
 /* Quaternion from rotation angle and direction vector */
@@ -93,12 +93,9 @@ q_from_rotation_vector(const T &theta,
                        const DirectionVector_Type<T> &direction_vector,
                        const T &division_min) -> Quaternion_Type<T> {
 
-  T direction_vector_sq = direction_vector.template get<P_X, 0>() *
-                              direction_vector.template get<P_X, 0>() +
-                          direction_vector.template get<P_Y, 0>() *
-                              direction_vector.template get<P_Y, 0>() +
-                          direction_vector.template get<P_Z, 0>() *
-                              direction_vector.template get<P_Z, 0>();
+  T direction_vector_sq = direction_vector.x * direction_vector.x +
+                          direction_vector.y * direction_vector.y +
+                          direction_vector.z * direction_vector.z;
 
   T direction_vector_norm_inv = static_cast<T>(0);
 
@@ -112,34 +109,31 @@ q_from_rotation_vector(const T &theta,
 
   T norm_inv_sin_theta = direction_vector_norm_inv * sin_half_theta;
 
-  return Quaternion_Type<T>(
-      cos_half_theta,
-      direction_vector.template get<P_X, 0>() * norm_inv_sin_theta,
-      direction_vector.template get<P_Y, 0>() * norm_inv_sin_theta,
-      direction_vector.template get<P_Z, 0>() * norm_inv_sin_theta);
+  return Quaternion_Type<T>(cos_half_theta,
+                            direction_vector.x * norm_inv_sin_theta,
+                            direction_vector.y * norm_inv_sin_theta,
+                            direction_vector.z * norm_inv_sin_theta);
 }
 
 /* Omega Type */
-template <typename T>
-using Omega_Type = PythonNumpy::DenseMatrix_Type<T, CARTESIAN_SIZE, 1>;
+template <typename T> using Omega_Type = CartesianVector<T>;
 
 /* make Omega */
 template <typename T>
 inline auto make_Omega(const T &x, const T &y, const T &z) -> Omega_Type<T> {
 
-  return PythonNumpy::make_DenseMatrix<CARTESIAN_SIZE, 1>(x, y, z);
+  return CartesianVector<T>(x, y, z);
 }
 
 /* Euler Angle Type */
-template <typename T>
-using EulerAngle_Type = PythonNumpy::DenseMatrix_Type<T, CARTESIAN_SIZE, 1>;
+template <typename T> using EulerAngle_Type = CartesianVector<T>;
 
 /* make Euler Angle */
 template <typename T>
 inline auto make_EulerAngle(const T &roll, const T &pitch, const T &yaw)
     -> EulerAngle_Type<T> {
 
-  return PythonNumpy::make_DenseMatrix<CARTESIAN_SIZE, 1>(roll, pitch, yaw);
+  return CartesianVector<T>(roll, pitch, yaw);
 }
 
 /* Rotation Matrix Type */
@@ -186,26 +180,18 @@ inline auto integrate_gyro_approximately(const Omega_Type<T> &omega,
 
   auto out_q = Quaternion_Type<T>::identity();
 
-  out_q.w = (-(omega.template get<P_X, 0>() * q.x) -
-             omega.template get<P_Y, 0>() * q.y -
-             omega.template get<P_Z, 0>() * q.z) *
+  out_q.w = (-(omega.x * q.x) - omega.y * q.y - omega.z * q.z) *
                 static_cast<T>(0.5) * time_step +
             q.w;
-  out_q.x =
-      (omega.template get<P_X, 0>() * q.w + omega.template get<P_Z, 0>() * q.y -
-       omega.template get<P_Y, 0>() * q.z) *
-          static_cast<T>(0.5) * time_step +
-      q.x;
-  out_q.y =
-      (omega.template get<P_Y, 0>() * q.w - omega.template get<P_Z, 0>() * q.x +
-       omega.template get<P_X, 0>() * q.z) *
-          static_cast<T>(0.5) * time_step +
-      q.y;
-  out_q.z =
-      (omega.template get<P_Z, 0>() * q.w + omega.template get<P_Y, 0>() * q.x -
-       omega.template get<P_X, 0>() * q.y) *
-          static_cast<T>(0.5) * time_step +
-      q.z;
+  out_q.x = (omega.x * q.w + omega.z * q.y - omega.y * q.z) *
+                static_cast<T>(0.5) * time_step +
+            q.x;
+  out_q.y = (omega.y * q.w - omega.z * q.x + omega.x * q.z) *
+                static_cast<T>(0.5) * time_step +
+            q.y;
+  out_q.z = (omega.z * q.w + omega.y * q.x - omega.x * q.y) *
+                static_cast<T>(0.5) * time_step +
+            q.z;
 
   return out_q.normalized(division_min);
 }
@@ -237,10 +223,7 @@ inline auto integrate_gyro(const Omega_Type<T> &omega,
   auto out_q = Quaternion_Type<T>::identity();
 
   auto omega_norm_inv = Base::Math::rsqrt(
-      omega.template get<P_X, 0>() * omega.template get<P_X, 0>() +
-          omega.template get<P_Y, 0>() * omega.template get<P_Y, 0>() +
-          omega.template get<P_Z, 0>() * omega.template get<P_Z, 0>(),
-      division_min);
+      omega.x * omega.x + omega.y * omega.y + omega.z * omega.z, division_min);
 
   auto omega_norm_half_step = static_cast<T>(0.5) * time_step / omega_norm_inv;
 
@@ -249,10 +232,9 @@ inline auto integrate_gyro(const Omega_Type<T> &omega,
 
   Base::Math::sincos(omega_norm_half_step, w_sin, w_cos);
 
-  auto q_omega = Quaternion_Type<T>(
-      w_cos, omega.template get<P_X, 0>() * omega_norm_inv * w_sin,
-      omega.template get<P_Y, 0>() * omega_norm_inv * w_sin,
-      omega.template get<P_Z, 0>() * omega_norm_inv * w_sin);
+  auto q_omega = Quaternion_Type<T>(w_cos, omega.x * omega_norm_inv * w_sin,
+                                    omega.y * omega_norm_inv * w_sin,
+                                    omega.z * omega_norm_inv * w_sin);
 
   out_q = q * q_omega;
 
