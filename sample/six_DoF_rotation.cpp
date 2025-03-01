@@ -43,9 +43,9 @@ int main(void) {
   auto euler_angle = as_euler_angles(q_next);
 
   std::cout << "Euler angle from Quaternion: ";
-  std::cout << euler_angle(0, 0) << ", ";
-  std::cout << euler_angle(1, 0) << ", ";
-  std::cout << euler_angle(2, 0) << std::endl << std::endl;
+  std::cout << euler_angle.x << ", ";
+  std::cout << euler_angle.y << ", ";
+  std::cout << euler_angle.z << std::endl << std::endl;
 
   return 0;
 }
