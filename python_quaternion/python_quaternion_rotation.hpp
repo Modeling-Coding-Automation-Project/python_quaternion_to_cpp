@@ -15,17 +15,75 @@ constexpr std::size_t E_ROLL = 0;
 constexpr std::size_t E_PITCH = 1;
 constexpr std::size_t E_YAW = 2;
 
-/* Direction Vector Type */
+/* Direction Vector */
 template <typename T>
-using DirectionVector_Type =
-    PythonNumpy::DenseMatrix_Type<T, CARTESIAN_SIZE, 1>;
+class DirectionVector
+    : public PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1> {
+public:
+  /* Constructor */
+  DirectionVector()
+      : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(),
+        x(this->access(P_X, 0)), y(this->access(P_Y, 0)),
+        z(this->access(P_Z, 0)) {}
+
+  DirectionVector(const T &x, const T &y, const T &z)
+      : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(),
+        x(this->access(P_X, 0)), y(this->access(P_Y, 0)),
+        z(this->access(P_Z, 0)) {
+
+    this->template set<P_X, 0>(x);
+    this->template set<P_Y, 0>(y);
+    this->template set<P_Z, 0>(z);
+  }
+
+  /* Copy Constructor */
+  DirectionVector(const DirectionVector<T> &input)
+      : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(input),
+        x(input.x), y(input.y), z(input.z) {}
+
+  DirectionVector<T> &operator=(const DirectionVector<T> &input) {
+    if (this != &input) {
+      this->matrix = input.matrix;
+      this->x = input.x;
+      this->y = input.y;
+      this->z = input.z;
+    }
+    return *this;
+  }
+
+  /* Move Constructor */
+  DirectionVector(DirectionVector<T> &&input) noexcept
+      : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(
+            std::move(input)),
+        x(input.access(P_X, 0)), y(input.access(P_Y, 0)),
+        z(input.access(P_Z, 0)) {}
+
+  DirectionVector<T> &operator=(DirectionVector<T> &&input) noexcept {
+    if (this != &input) {
+      this->matrix = std::move(input.matrix);
+      this->x = input.access(P_X, 0);
+      this->y = input.access(P_Y, 0);
+      this->z = input.access(P_Z, 0);
+    }
+    return *this;
+  }
+
+public:
+  /* Variable */
+  T &x;
+  T &y;
+  T &z;
+};
+
+/* Direction Vector Type */
+template <typename T> using DirectionVector_Type = DirectionVector<T>;
 
 /* make Direction Vector */
 template <typename T>
 inline auto make_DirectionVector(const T &x, const T &y, const T &z)
     -> DirectionVector_Type<T> {
 
-  return PythonNumpy::make_DenseMatrix<CARTESIAN_SIZE, 1>(x, y, z);
+  return DirectionVector<T>(x, y, z);
 }
 
 /* Quaternion from rotation angle and direction vector */

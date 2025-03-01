@@ -181,6 +181,25 @@ void check_python_rotation(void) {
     constexpr T NEAR_LIMIT_STRICT = std::is_same<T, double>::value ? T(1.0e-5) : T(1.0e-4);
     //constexpr T NEAR_LIMIT_SOFT = 1.0e-2F;
 
+    /* 回転軸ベクトル */
+    DirectionVector_Type<T> a = make_DirectionVector(
+        static_cast<T>(1.0),
+        static_cast<T>(2.0),
+        static_cast<T>(3.0)
+    );
+
+    DirectionVector_Type<T> a_copy = a;
+    DirectionVector_Type<T> a_move(a_copy);
+    a = std::move(a_move);
+
+    tester.expect_near(a.x, static_cast<T>(1.0), NEAR_LIMIT_STRICT,
+        "check direction vector copy and move ");
+    tester.expect_near(a.y, static_cast<T>(2.0), NEAR_LIMIT_STRICT,
+        "check direction vector copy and move ");
+    tester.expect_near(a.z, static_cast<T>(3.0), NEAR_LIMIT_STRICT,
+        "check direction vector copy and move ");
+
+
     auto q_1 = Quaternion<T>::identity();
     auto omega_1 = make_Omega(
         static_cast<T>(1),
