@@ -1,4 +1,12 @@
+"""
+file: arithmetic_operation.py
+
+This script demonstrates basic arithmetic operations with quaternions using the numpy-quaternion library.
+It creates two quaternions, performs multiplication and division, and prints their components.
+Additionally, it computes and displays the conjugate, norm, and normalized form of a quaternion.
+"""
 import numpy as np
+
 import quaternion
 import math
 

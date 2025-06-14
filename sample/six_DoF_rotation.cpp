@@ -1,3 +1,13 @@
+/**
+ * @file six_DoF_rotation.cpp
+ * @brief Demonstrates six degrees of freedom (6-DoF) rotation using quaternion
+ * operations.
+ *
+ * This example integrates angular velocity to update a quaternion representing
+ * orientation, computes the corresponding rotation matrix, and extracts Euler
+ * angles from the quaternion. It utilizes the PythonQuaternion library for
+ * quaternion and rotation operations.
+ */
 #include <iostream>
 
 #include "python_quaternion.hpp"
