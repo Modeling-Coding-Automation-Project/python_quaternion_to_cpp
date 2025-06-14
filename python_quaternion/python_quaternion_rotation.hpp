@@ -1,3 +1,15 @@
+/**
+ * @file python_quaternion_rotation.hpp
+ * @brief Quaternion and rotation utilities for 3D vector and orientation
+ * operations.
+ *
+ * This header provides a set of classes and functions for representing and
+ * manipulating 3D vectors, quaternions, and rotation matrices, with a focus on
+ * integration with Python-like data structures and conventions. The utilities
+ * include conversions between rotation representations, integration of angular
+ * velocity to update orientation, and construction of common rotation-related
+ * types.
+ */
 #ifndef __PYTHON_QUATERNION_ROTATION_HPP__
 #define __PYTHON_QUATERNION_ROTATION_HPP__
 
@@ -12,6 +24,23 @@ constexpr std::size_t P_Y = 1;
 constexpr std::size_t P_Z = 2;
 
 /* Cartesian Vector */
+
+/**
+ * @brief A 3D Cartesian vector class template.
+ *
+ * This class represents a 3-dimensional vector with x, y, and z components,
+ * inheriting from PythonNumpy::Matrix for dense storage. It provides
+ * constructors for default, value-initialized, copy, and move semantics,
+ * as well as assignment operators. The x, y, and z members are references
+ * to the underlying matrix storage for convenient access.
+ *
+ * @tparam T The type of the vector components (e.g., float, double).
+ *
+ * @note
+ * - The class assumes the existence of constants P_X, P_Y, P_Z, and
+ * CARTESIAN_SIZE.
+ * - The base class PythonNumpy::Matrix must provide access and set methods.
+ */
 template <typename T>
 class CartesianVector
     : public PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1> {
@@ -75,6 +104,20 @@ public:
 template <typename T> using DirectionVector_Type = CartesianVector<T>;
 
 /* make Direction Vector */
+
+/**
+ * @brief Creates a DirectionVector_Type from x, y, and z components.
+ *
+ * This function constructs a DirectionVector_Type object using the provided
+ * x, y, and z values. It is a convenience function for creating direction
+ * vectors in 3D space.
+ *
+ * @tparam T The type of the vector components (e.g., float, double).
+ * @param x The x component of the direction vector.
+ * @param y The y component of the direction vector.
+ * @param z The z component of the direction vector.
+ * @return A DirectionVector_Type object initialized with the given components.
+ */
 template <typename T>
 inline auto make_DirectionVector(const T &x, const T &y, const T &z)
     -> DirectionVector_Type<T> {
@@ -83,6 +126,21 @@ inline auto make_DirectionVector(const T &x, const T &y, const T &z)
 }
 
 /* Quaternion from rotation angle and direction vector */
+
+/**
+ * @brief Creates a quaternion from a rotation vector and a direction vector.
+ *
+ * This function constructs a quaternion representing a rotation defined by
+ * an angle (theta) and a direction vector. The direction vector is normalized
+ * before being used to compute the quaternion.
+ *
+ * @tparam T The type of the angle and direction vector components (e.g., float,
+ * double).
+ * @param theta The rotation angle in radians.
+ * @param direction_vector The direction vector defining the axis of rotation.
+ * @param division_min The minimum value to avoid division by zero.
+ * @return A Quaternion_Type object representing the rotation.
+ */
 template <typename T>
 inline auto
 q_from_rotation_vector(const T &theta,
@@ -115,6 +173,20 @@ q_from_rotation_vector(const T &theta,
 template <typename T> using Omega_Type = CartesianVector<T>;
 
 /* make Omega */
+
+/**
+ * @brief Creates an Omega_Type from x, y, and z components.
+ *
+ * This function constructs an Omega_Type object using the provided x, y,
+ * and z values. It is a convenience function for creating angular velocity
+ * vectors in 3D space.
+ *
+ * @tparam T The type of the vector components (e.g., float, double).
+ * @param x The x component of the angular velocity vector.
+ * @param y The y component of the angular velocity vector.
+ * @param z The z component of the angular velocity vector.
+ * @return An Omega_Type object initialized with the given components.
+ */
 template <typename T>
 inline auto make_Omega(const T &x, const T &y, const T &z) -> Omega_Type<T> {
 
@@ -125,6 +197,20 @@ inline auto make_Omega(const T &x, const T &y, const T &z) -> Omega_Type<T> {
 template <typename T> using EulerAngle_Type = CartesianVector<T>;
 
 /* make Euler Angle */
+
+/**
+ * @brief Creates an EulerAngle_Type from roll, pitch, and yaw angles.
+ *
+ * This function constructs an EulerAngle_Type object using the provided
+ * roll, pitch, and yaw angles. It is a convenience function for creating
+ * Euler angles in 3D space.
+ *
+ * @tparam T The type of the angle components (e.g., float, double).
+ * @param roll The roll angle in radians.
+ * @param pitch The pitch angle in radians.
+ * @param yaw The yaw angle in radians.
+ * @return An EulerAngle_Type object initialized with the given angles.
+ */
 template <typename T>
 inline auto make_EulerAngle(const T &roll, const T &pitch, const T &yaw)
     -> EulerAngle_Type<T> {
@@ -138,6 +224,17 @@ using RotationMatrix_Type =
     PythonNumpy::DenseMatrix_Type<T, CARTESIAN_SIZE, CARTESIAN_SIZE>;
 
 /* make Rotation Matrix */
+
+/**
+ * @brief Creates a RotationMatrix_Type initialized to the identity matrix.
+ *
+ * This function constructs a RotationMatrix_Type object representing a
+ * 3x3 identity matrix, which is commonly used as a starting point for
+ * rotation matrices in 3D space.
+ *
+ * @tparam T The type of the matrix components (e.g., float, double).
+ * @return A RotationMatrix_Type object initialized to the identity matrix.
+ */
 template <typename T>
 inline auto make_RotationMatrix(void) -> RotationMatrix_Type<T> {
 
@@ -147,26 +244,32 @@ inline auto make_RotationMatrix(void) -> RotationMatrix_Type<T> {
       static_cast<T>(0), static_cast<T>(0), static_cast<T>(1));
 }
 
-/***********************************************************************
-# Integrates 3-axis angular velocity to obtain a quaternion (approximate)
-
-Argument:
-  w: 3-axis angular velocity [rad/s]
-  q: Quaternion one step before
-  time_step: Integration time step [s]
-
-Returns:
-    q: Quaternion
-
-Details:
-  Integrates 3-axis angular velocity using an approximate
-  formula to obtain a quaternion.
-  The angular velocity is the angular velocity around each axis of XYZ, and
-  XYZ axis is assumed to be right-handed.
-  The quaternion is a quaternion representing the posture angle.
-  q.w ^ 2 + q.x ^ 2 + q.y ^ 2 + q.z ^ 2 = 1 must be satisfied.
-  The initial posture is q.w = 1, q.x = 0, q.y = 0, q.z = 0 by default.
-***********************************************************************/
+/**
+ * @brief Integrates a quaternion using angular velocity (gyroscope) data with a
+ * first-order approximation.
+ *
+ * This function computes the next orientation quaternion by integrating the
+ * current quaternion `q` with the angular velocity vector `omega` over a time
+ * step `time_step`. The integration uses a first-order (Euler) approximation of
+ * quaternion derivative. The resulting quaternion is normalized with a minimum
+ * division threshold `division_min` to avoid division by very small numbers.
+ *
+ * @tparam T Numeric type (e.g., float, double).
+ * @param omega Angular velocity vector (gyroscope data) as an Omega_Type<T>.
+ * @param q Current orientation quaternion as a Quaternion_Type<T>.
+ * @param time_step Time step over which to integrate.
+ * @param division_min Minimum value used during normalization to prevent
+ * division by zero.
+ * @return Quaternion_Type<T> The integrated and normalized quaternion.
+ *
+ * Integrates 3-axis angular velocity using an approximate
+ * formula to obtain a quaternion.
+ * The angular velocity is the angular velocity around each axis of XYZ, and
+ * XYZ axis is assumed to be right-handed.
+ * The quaternion is a quaternion representing the posture angle.
+ * q.w ^ 2 + q.x ^ 2 + q.y ^ 2 + q.z ^ 2 = 1 must be satisfied.
+ * The initial posture is q.w = 1, q.x = 0, q.y = 0, q.z = 0 by default.
+ */
 template <typename T>
 inline auto integrate_gyro_approximately(const Omega_Type<T> &omega,
                                          const Quaternion_Type<T> &q,
@@ -192,25 +295,33 @@ inline auto integrate_gyro_approximately(const Omega_Type<T> &omega,
   return out_q.normalized(division_min);
 }
 
-/***********************************************************************
-# Integrates 3-axis angular velocity to obtain a quaternion (strict)
-
-Arguments:
-  omega: 3-axis angular velocity [rad/s]
-  q: Quaternion one step before
-  time_step: Integration time step [s]
-
-Returns:
-  q: Quaternion
-
-Details:
-  Integrates 3-axis angular velocity using a strict formula to obtain a
-  quaternion. The angular velocity is the angular velocity around each axis of
-  XYZ, and XYZ axis is assumed to be right-handed. The quaternion is a
-quaternion representing the posture angle. q.w ^ 2 + q.x ^ 2 + q.y ^ 2 + q.z ^
-2= 1 must be satisfied. The initial posture is q.w = 1, q.x = 0, q.y = 0, q.z =
-0 by default.
- ***********************************************************************/
+/**
+ * @brief Integrates a quaternion using angular velocity (gyroscope) data with a
+ * strict approximation.
+ *
+ * This function computes the next orientation quaternion by integrating the
+ * current quaternion `q` with the angular velocity vector `omega` over a time
+ * step `time_step`. The integration uses a strict approximation of quaternion
+ * derivative, which is more accurate than the first-order approximation. The
+ * resulting quaternion is normalized with a minimum division threshold
+ * `division_min` to avoid division by very small numbers.
+ *
+ * @tparam T Numeric type (e.g., float, double).
+ * @param omega Angular velocity vector (gyroscope data) as an Omega_Type<T>.
+ * @param q Current orientation quaternion as a Quaternion_Type<T>.
+ * @param time_step Time step over which to integrate.
+ * @param division_min Minimum value used during normalization to prevent
+ * division by zero.
+ * @return Quaternion_Type<T> The integrated and normalized quaternion.
+ *
+ * Integrates 3-axis angular velocity using a strict formula to obtain a
+ * quaternion.
+ * The angular velocity is the angular velocity around each axis of XYZ, and
+ * XYZ axis is assumed to be right-handed.
+ * The quaternion is a quaternion representing the posture angle.
+ * q.w ^ 2 + q.x ^ 2 + q.y ^ 2 + q.z ^ 2 = 1 must be satisfied.
+ * The initial posture is q.w = 1, q.x = 0, q.y = 0, q.z = 0 by default.
+ */
 template <typename T>
 inline auto integrate_gyro(const Omega_Type<T> &omega,
                            const Quaternion_Type<T> &q, const T &time_step,
@@ -237,6 +348,17 @@ inline auto integrate_gyro(const Omega_Type<T> &omega,
   return out_q.normalized(division_min);
 }
 
+/**
+ * @brief Converts a quaternion to a rotation matrix.
+ *
+ * This function converts a quaternion representation of orientation into a
+ * 3x3 rotation matrix. The conversion is based on the mathematical
+ * representation of quaternions and their relationship to rotation matrices.
+ *
+ * @tparam T The type of the quaternion components (e.g., float, double).
+ * @param q The quaternion to be converted.
+ * @return A RotationMatrix_Type<T> representing the rotation matrix.
+ */
 template <typename T>
 inline auto as_rotation_matrix(const Quaternion_Type<T> &q)
     -> RotationMatrix_Type<T> {
@@ -258,6 +380,18 @@ inline auto as_rotation_matrix(const Quaternion_Type<T> &q)
   return R;
 }
 
+/**
+ * @brief Converts a quaternion to Euler angles (roll, pitch, yaw).
+ *
+ * This function converts a quaternion representation of orientation into
+ * Euler angles. The conversion is based on the mathematical representation
+ * of quaternions and their relationship to Euler angles.
+ *
+ * @tparam T The type of the quaternion components (e.g., float, double).
+ * @param q The quaternion to be converted.
+ * @return An EulerAngle_Type<T> representing the Euler angles (roll, pitch,
+ * yaw).
+ */
 template <typename T>
 inline auto as_euler_angles(const Quaternion_Type<T> &q) -> EulerAngle_Type<T> {
 
