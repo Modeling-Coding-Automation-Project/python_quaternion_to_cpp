@@ -1,3 +1,6 @@
+"""
+This module provides functions for quaternion-based rotation calculations, specifically for integrating 3-axis angular velocity (gyroscope data) to update orientation using quaternions. The main function, `integrate_gyro`, computes the new orientation quaternion by integrating angular velocity over a time step, ensuring strict normalization and numerical stability.
+"""
 import os
 import sys
 sys.path.append(os.getcwd())
@@ -11,10 +14,27 @@ DEFAULT_DIVISION_MIN = 1.0e-10
 
 
 def identity():
+    '''
+    # Returns the identity quaternion
+    Details:
+        The identity quaternion is a quaternion representing no rotation.
+        It is defined as q.w = 1, q.x = 0, q.y = 0, q.z = 0.
+    '''
     return np.quaternion(1.0, 0.0, 0.0, 0.0)
 
 
 def q_from_rotation_vector(theta, direction_vector):
+    '''
+    # Returns a quaternion from a rotation vector
+    Arguments:
+        theta: Rotation angle in radians
+        direction_vector: Direction vector of the rotation axis
+    Returns:
+        Quaternion representing the rotation
+    Details:
+        Converts a rotation vector defined by an angle and a direction vector
+        into a quaternion. The direction vector should be normalized.
+    '''
 
     direction_vector_sq = direction_vector[0] * direction_vector[0] + \
         direction_vector[1] * direction_vector[1] + \

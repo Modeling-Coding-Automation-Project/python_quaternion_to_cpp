@@ -1,3 +1,12 @@
+/**
+ * @file arithmetic_operation.cpp
+ * @brief Demonstrates basic arithmetic operations with quaternions in C++.
+ *
+ * This program showcases the creation and manipulation of quaternion objects,
+ * including multiplication, division, and conjugation. It utilizes a Quaternion
+ * class template and related utility functions to perform these operations.
+ * The results of each operation are printed to the standard output.
+ */
 #include <iostream>
 
 #include "python_quaternion.hpp"
