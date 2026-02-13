@@ -3,9 +3,13 @@ File: six_DoF_rotation.py
 
 This script demonstrates various 6 Degrees of Freedom (DoF) rotation operations using both Euler angles and quaternions. It utilizes the numpy and quaternion libraries, along with a custom PythonRotation module, to perform and compare different rotation representations and integrations.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import numpy as np
 import quaternion

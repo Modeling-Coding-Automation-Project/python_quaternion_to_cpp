@@ -1,9 +1,16 @@
 """
-This module provides functions for quaternion-based rotation calculations, specifically for integrating 3-axis angular velocity (gyroscope data) to update orientation using quaternions. The main function, `integrate_gyro`, computes the new orientation quaternion by integrating angular velocity over a time step, ensuring strict normalization and numerical stability.
+This module provides functions for quaternion-based rotation calculations,
+ specifically for integrating 3-axis angular velocity (gyroscope data) to update orientation using quaternions.
+The main function, `integrate_gyro`, computes the new orientation quaternion
+ by integrating angular velocity over a time step, ensuring strict normalization and numerical stability.
 """
+from __future__ import annotations
+
 import os
 import sys
-sys.path.append(os.getcwd())
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 import math
 import quaternion

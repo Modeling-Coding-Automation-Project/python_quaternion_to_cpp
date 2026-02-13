@@ -5,6 +5,14 @@ This script demonstrates basic arithmetic operations with quaternions using the 
 It creates two quaternions, performs multiplication and division, and prints their components.
 Additionally, it computes and displays the conjugate, norm, and normalized form of a quaternion.
 """
+from __future__ import annotations
+
+import os
+import sys
+from pathlib import Path
+
+sys.path.append(str(Path(__file__).resolve().parents[1]))
+
 import numpy as np
 
 import quaternion
