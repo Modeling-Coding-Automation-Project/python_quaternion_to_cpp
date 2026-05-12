@@ -11,8 +11,8 @@
  * internal storage and provides operator overloads for addition, subtraction,
  * and multiplication.
  */
-#ifndef __PYTHON_QUATERNION_BASE_HPP__
-#define __PYTHON_QUATERNION_BASE_HPP__
+#ifndef PYTHON_QUATERNION_BASE_HPP_
+#define PYTHON_QUATERNION_BASE_HPP_
 
 #include "base_math.hpp"
 #include "python_numpy.hpp"
@@ -303,4 +303,4 @@ inline auto make_quaternion(const T &w, const T &x, const T &y, const T &z)
 
 } // namespace PythonQuaternion
 
-#endif // __PYTHON_QUATERNION_BASE_HPP__
+#endif // PYTHON_QUATERNION_BASE_HPP_

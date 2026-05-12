@@ -10,8 +10,8 @@
  * velocity to update orientation, and construction of common rotation-related
  * types.
  */
-#ifndef __PYTHON_QUATERNION_ROTATION_HPP__
-#define __PYTHON_QUATERNION_ROTATION_HPP__
+#ifndef PYTHON_QUATERNION_ROTATION_HPP_
+#define PYTHON_QUATERNION_ROTATION_HPP_
 
 #include "python_numpy.hpp"
 #include "python_quaternion_base.hpp"
@@ -419,4 +419,4 @@ inline auto as_euler_angles(const Quaternion_Type<T> &q) -> EulerAngle_Type<T> {
 
 } // namespace PythonQuaternion
 
-#endif // __PYTHON_QUATERNION_ROTATION_HPP__
+#endif // PYTHON_QUATERNION_ROTATION_HPP_
