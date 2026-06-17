@@ -66,12 +66,14 @@ public:
 public:
   /* Constructor */
   Quaternion()
-      : _values(), w(_values.access(Q_W, 0)), x(_values.access(Q_X, 0)),
-        y(_values.access(Q_Y, 0)), z(_values.access(Q_Z, 0)) {}
+      : _values(), w(_values.unsafe_access(Q_W, 0)),
+        x(_values.unsafe_access(Q_X, 0)), y(_values.unsafe_access(Q_Y, 0)),
+        z(_values.unsafe_access(Q_Z, 0)) {}
 
   Quaternion(const T &w, const T &x, const T &y, const T &z)
-      : _values(), w(_values.access(Q_W, 0)), x(_values.access(Q_X, 0)),
-        y(_values.access(Q_Y, 0)), z(_values.access(Q_Z, 0)) {
+      : _values(), w(_values.unsafe_access(Q_W, 0)),
+        x(_values.unsafe_access(Q_X, 0)), y(_values.unsafe_access(Q_Y, 0)),
+        z(_values.unsafe_access(Q_Z, 0)) {
     _values(Q_W, 0) = w;
     _values(Q_X, 0) = x;
     _values(Q_Y, 0) = y;
@@ -96,17 +98,19 @@ public:
 
   /* Move Constructor */
   Quaternion(Quaternion<T> &&input) noexcept
-      : _values(std::move(input._values)), w(input._values.access(Q_W, 0)),
-        x(input._values.access(Q_X, 0)), y(input._values.access(Q_Y, 0)),
-        z(input._values.access(Q_Z, 0)) {}
+      : _values(std::move(input._values)),
+        w(input._values.unsafe_access(Q_W, 0)),
+        x(input._values.unsafe_access(Q_X, 0)),
+        y(input._values.unsafe_access(Q_Y, 0)),
+        z(input._values.unsafe_access(Q_Z, 0)) {}
 
   Quaternion<T> &operator=(Quaternion<T> &&input) noexcept {
     if (this != &input) {
       this->_values = std::move(input._values);
-      this->w = input._values.access(Q_W, 0);
-      this->x = input._values.access(Q_X, 0);
-      this->y = input._values.access(Q_Y, 0);
-      this->z = input._values.access(Q_Z, 0);
+      this->w = input._values.unsafe_access(Q_W, 0);
+      this->x = input._values.unsafe_access(Q_X, 0);
+      this->y = input._values.unsafe_access(Q_Y, 0);
+      this->z = input._values.unsafe_access(Q_Z, 0);
     }
     return *this;
   }

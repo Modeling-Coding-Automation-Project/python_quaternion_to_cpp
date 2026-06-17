@@ -48,13 +48,13 @@ public:
   /* Constructor */
   CartesianVector()
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(),
-        x(this->access(P_X, 0)), y(this->access(P_Y, 0)),
-        z(this->access(P_Z, 0)) {}
+        x(this->unsafe_access(P_X, 0)), y(this->unsafe_access(P_Y, 0)),
+        z(this->unsafe_access(P_Z, 0)) {}
 
   CartesianVector(const T &x, const T &y, const T &z)
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(),
-        x(this->access(P_X, 0)), y(this->access(P_Y, 0)),
-        z(this->access(P_Z, 0)) {
+        x(this->unsafe_access(P_X, 0)), y(this->unsafe_access(P_Y, 0)),
+        z(this->unsafe_access(P_Z, 0)) {
 
     this->template set<P_X, 0>(x);
     this->template set<P_Y, 0>(y);
@@ -80,15 +80,15 @@ public:
   CartesianVector(CartesianVector<T> &&input) noexcept
       : PythonNumpy::Matrix<PythonNumpy::DefDense, T, CARTESIAN_SIZE, 1>(
             std::move(input)),
-        x(input.access(P_X, 0)), y(input.access(P_Y, 0)),
-        z(input.access(P_Z, 0)) {}
+        x(input.unsafe_access(P_X, 0)), y(input.unsafe_access(P_Y, 0)),
+        z(input.unsafe_access(P_Z, 0)) {}
 
   CartesianVector<T> &operator=(CartesianVector<T> &&input) noexcept {
     if (this != &input) {
       this->matrix = std::move(input.matrix);
-      this->x = input.access(P_X, 0);
-      this->y = input.access(P_Y, 0);
-      this->z = input.access(P_Z, 0);
+      this->x = input.unsafe_access(P_X, 0);
+      this->y = input.unsafe_access(P_Y, 0);
+      this->z = input.unsafe_access(P_Z, 0);
     }
     return *this;
   }
